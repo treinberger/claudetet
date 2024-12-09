@@ -1,10 +1,9 @@
-// File: /backend/src/main/java/com/allianz/raffle/model/Raffle.java
-
 package com.allianz.raffle.model;
 
 import com.allianz.raffle.model.enums.RaffleStatus;
 import javax.persistence.*;
 import java.time.LocalDateTime;
+import java.util.ArrayList;
 import java.util.List;
 
 @Entity
@@ -24,10 +23,10 @@ public class Raffle {
     private String question;
 
     @ElementCollection
-    private List<String> answerOptions;
+    private List<String> answerOptions = new ArrayList<>();
 
-    @OneToMany(mappedBy = "raffle", cascade = CascadeType.ALL)
-    private List<PrizeTier> prizeTiers;
+    @OneToMany(mappedBy = "raffle", cascade = CascadeType.ALL, orphanRemoval = true)
+    private List<PrizeTier> prizeTiers = new ArrayList<>();
 
     @Embedded
     private ApointsConfig apointsConfig;
@@ -36,7 +35,20 @@ public class Raffle {
     private RaffleStatus status;
 
     // Constructors
-    public Raffle() {}
+    public Raffle() {
+        this.apointsConfig = new ApointsConfig();
+    }
+
+    // Helper method to manage bidirectional relationship
+    public void addPrizeTier(PrizeTier prizeTier) {
+        prizeTiers.add(prizeTier);
+        prizeTier.setRaffle(this);
+    }
+
+    public void removePrizeTier(PrizeTier prizeTier) {
+        prizeTiers.remove(prizeTier);
+        prizeTier.setRaffle(null);
+    }
 
     // Getters and Setters
     public Long getId() {
@@ -124,7 +136,12 @@ public class Raffle {
     }
 
     public void setPrizeTiers(List<PrizeTier> prizeTiers) {
-        this.prizeTiers = prizeTiers;
+        // Clear existing prize tiers
+        this.prizeTiers.clear();
+        if (prizeTiers != null) {
+            // Add each prize tier using the helper method to maintain the relationship
+            prizeTiers.forEach(this::addPrizeTier);
+        }
     }
 
     public ApointsConfig getApointsConfig() {

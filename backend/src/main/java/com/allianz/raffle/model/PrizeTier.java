@@ -1,7 +1,6 @@
-// File: /backend/src/main/java/com/allianz/raffle/model/PrizeTier.java
-
 package com.allianz.raffle.model;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import javax.persistence.*;
 
 @Entity
@@ -17,6 +16,7 @@ public class PrizeTier {
 
     @ManyToOne
     @JoinColumn(name = "raffle_id")
+    @JsonIgnore // Prevent circular reference during JSON serialization
     private Raffle raffle;
 
     // Constructors

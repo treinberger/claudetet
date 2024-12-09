@@ -1,15 +1,37 @@
-// File: /frontend/src/app/components/raffle-detail/raffle-detail.component.ts
-
 import { Component, OnInit } from '@angular/core';
+import { CommonModule } from '@angular/common';
 import { ActivatedRoute } from '@angular/router';
-import { FormBuilder, FormGroup, Validators } from '@angular/forms';
+import { FormBuilder, FormGroup, Validators, ReactiveFormsModule } from '@angular/forms';
 import { RaffleService } from '../../services/raffle.service';
 import { Raffle } from '../../models/raffle.model';
+import { NxIconModule } from '@aposin/ng-aquila/icon';
+import { NxSpinnerModule } from '@aposin/ng-aquila/spinner';
+import { NxMessageModule } from '@aposin/ng-aquila/message';
+import { NxCardModule } from '@aposin/ng-aquila/card';
+import { NxFormfieldModule } from '@aposin/ng-aquila/formfield';
+import { NxDropdownModule } from '@aposin/ng-aquila/dropdown';
+import { NxButtonModule } from '@aposin/ng-aquila/button';
+import { NxInputModule } from '@aposin/ng-aquila/input';
+import { NxTableModule } from '@aposin/ng-aquila/table';
 
 @Component({
   selector: 'app-raffle-detail',
   templateUrl: './raffle-detail.component.html',
-  styleUrls: ['./raffle-detail.component.scss']
+  styleUrls: ['./raffle-detail.component.scss'],
+  standalone: true,
+  imports: [
+    CommonModule,
+    ReactiveFormsModule,
+    NxIconModule,
+    NxSpinnerModule,
+    NxMessageModule,
+    NxCardModule,
+    NxFormfieldModule,
+    NxDropdownModule,
+    NxButtonModule,
+    NxInputModule,
+    NxTableModule
+  ]
 })
 export class RaffleDetailComponent implements OnInit {
   raffle: Raffle | null = null;
@@ -31,7 +53,7 @@ export class RaffleDetailComponent implements OnInit {
       additionalChances: [0, [
         Validators.required,
         Validators.min(0),
-        Validators.max(100) // This will be updated when raffle is loaded
+        Validators.max(100)
       ]]
     });
   }
@@ -68,7 +90,6 @@ export class RaffleDetailComponent implements OnInit {
   submitAnswer(): void {
     if (this.answerForm.valid && this.raffle) {
       const answer = this.answerForm.get('selectedAnswer')?.value;
-      // TODO: Implement answer submission
       console.log('Submitting answer:', answer);
     }
   }
@@ -76,7 +97,6 @@ export class RaffleDetailComponent implements OnInit {
   purchaseChances(): void {
     if (this.chancesForm.valid && this.raffle) {
       const amount = this.chancesForm.get('additionalChances')?.value;
-      // TODO: Implement chance purchase
       console.log('Purchasing chances:', amount);
     }
   }

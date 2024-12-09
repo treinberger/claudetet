@@ -4,11 +4,24 @@ import { Component, OnInit } from '@angular/core';
 import { Router } from '@angular/router';
 import { RaffleService } from '../../services/raffle.service';
 import { Raffle } from '../../models/raffle.model';
+import { NxTableModule } from '@aposin/ng-aquila/table';
+import { CommonModule } from '@angular/common';
+import { NxIconModule } from '@aposin/ng-aquila/icon';
+import { NxSpinnerModule } from '@aposin/ng-aquila/spinner';
+import { NxMessageModule } from '@aposin/ng-aquila/message';
 
 @Component({
   selector: 'app-raffle-list',
   templateUrl: './raffle-list.component.html',
-  styleUrls: ['./raffle-list.component.scss']
+  styleUrls: ['./raffle-list.component.scss'],
+  imports: [
+    CommonModule,
+    NxTableModule,
+    NxIconModule,
+    NxSpinnerModule,
+    NxMessageModule
+  ]
+  , standalone: true
 })
 export class RaffleListComponent implements OnInit {
   raffles: Raffle[] = [];
