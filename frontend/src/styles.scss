@@ -1,0 +1,21 @@
+/* You can add global styles to this file, and also import other style files */
+@import '@aposin/ng-aquila/css/normalize.css';
+@import '@aposin/ng-aquila/css/utilities.css';
+@import '@aposin/ng-aquila/themes/aposin.css';
+
+html, body {
+  height: 100%;
+  margin: 0;
+  font-family: var(--font-family);
+}
+
+/* Apply any additional global styles here */
+.nx-grid__column {
+  padding: 1rem;
+}
+
+.spinner-container {
+  display: flex;
+  justify-content: center;
+  padding: 2rem;
+}

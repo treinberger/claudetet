@@ -1,0 +1,49 @@
+<div nxLayout="grid">
+  <div nxRow>
+    <div nxCol="12">
+      <div class="nx-card">
+        <div class="nx-card__header">
+          <h2 nxHeadline="subsection-large">Raffle Management</h2>
+          <button nxButton="primary" (click)="openCreateDialog()">Create New Raffle</button>
+        </div>
+        <div class="nx-card__content">
+          <div *ngIf="loading" class="spinner-container">
+            <nx-spinner></nx-spinner>
+          </div>
+
+          <table nxTable *ngIf="!loading">
+            <thead>
+              <tr nxTableRow>
+                <th nxHeaderCell>Name</th>
+                <th nxHeaderCell>Status</th>
+                <th nxHeaderCell>Start Date</th>
+                <th nxHeaderCell>End Date</th>
+                <th nxHeaderCell>Actions</th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr nxTableRow *ngFor="let raffle of raffles">
+                <td nxTableCell>{{raffle.name}}</td>
+                <td nxTableCell>{{raffle.status}}</td>
+                <td nxTableCell>{{raffle.startDate | date:'medium'}}</td>
+                <td nxTableCell>{{raffle.endDate | date:'medium'}}</td>
+                <td nxTableCell>
+                  <button nxButton="secondary small" (click)="editRaffle(raffle)">Edit</button>
+                  <button nxButton="secondary small" 
+                          *ngIf="raffle.status === 'ENDED'"
+                          (click)="conductDraw(raffle.id)">
+                    Conduct Draw
+                  </button>
+                </td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
+      </div>
+
+      <div *ngIf="error" class="error-message">
+        <nx-message type="error">{{error}}</nx-message>
+      </div>
+    </div>
+  </div>
+</div>

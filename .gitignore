@@ -1,0 +1,16 @@
+# Backend
+target/
+*.db
+.classpath
+.project
+.settings/
+
+# Frontend
+node_modules/
+.angular/
+dist/
+.DS_Store
+
+# IDE
+.idea/
+*.iml

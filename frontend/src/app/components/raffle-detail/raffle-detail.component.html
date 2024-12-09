@@ -1,0 +1,68 @@
+<div class="nx-grid">
+  <div class="nx-grid__item nx-grid__item--width-12">
+    <div class="nx-card" *ngIf="raffle">
+      <div class="nx-card__header">
+        <h2 nxHeadline="subsection-large">{{raffle.name}}</h2>
+      </div>
+      <div class="nx-card__content">
+        <div *ngIf="loading" class="spinner-container">
+          <nx-spinner></nx-spinner>
+        </div>
+
+        <div *ngIf="!loading" class="raffle-detail">
+          <img [src]="raffle.detailImage" [alt]="raffle.name" class="detail-image" />
+          <p class="description">{{raffle.description}}</p>
+
+          <div class="question-section">
+            <h3 nxHeadline="subsection-small">Entry Question</h3>
+            <p>{{raffle.question}}</p>
+
+            <form [formGroup]="answerForm" class="answer-options">
+              <nx-radio-group formControlName="selectedAnswer">
+                <nx-radio *ngFor="let option of raffle.answerOptions" 
+                         [nxValue]="option">
+                  {{option}}
+                </nx-radio>
+              </nx-radio-group>
+            </form>
+
+            <button nxButton="primary" 
+                    (click)="submitAnswer()" 
+                    [disabled]="!answerForm.valid || loading">
+              Submit Answer
+            </button>
+          </div>
+
+          <div *ngIf="raffle.apointsConfig" class="apoints-section">
+            <h3 nxHeadline="subsection-small">Additional Chances</h3>
+            <p>Cost per chance: {{raffle.apointsConfig.costPerChance}} APoints</p>
+            <p>Maximum purchases: {{raffle.apointsConfig.maxPurchases}}</p>
+
+            <form [formGroup]="chancesForm">
+              <nx-formfield label="Number of additional chances">
+                <input nxInput
+                       type="number"
+                       formControlName="additionalChances"
+                       [min]="0"
+                       [max]="raffle.apointsConfig.maxPurchases" />
+              </nx-formfield>
+
+              <button nxButton="secondary" 
+                      (click)="purchaseChances()"
+                      [disabled]="!chancesForm.valid || loading">
+                Purchase Additional Chances
+              </button>
+            </form>
+          </div>
+        </div>
+      </div>
+      <div class="nx-card__footer">
+        <button nxButton="tertiary" routerLink="/raffles">Back to Raffles</button>
+      </div>
+    </div>
+
+    <div *ngIf="error" class="error-message">
+      <nx-message type="error">{{error}}</nx-message>
+    </div>
+  </div>
+</div>
