@@ -1,5 +1,5 @@
 # Project Files Content
-Generated on: Mo  9 Dez 2024 07:51:19 CET
+Generated on: Mo  9 Dez 2024 12:30:06 CET
 
 # Backend Files
 
@@ -42,6 +42,7 @@ import org.springframework.http.HttpStatus;
 import java.util.List;
 import java.util.HashMap;
 import java.util.Map;
+import java.util.Optional;
 
 @RestController
 @RequestMapping("/api/raffles")
@@ -53,6 +54,27 @@ public class RaffleController {
     @Autowired
     public RaffleController(RaffleService raffleService) {
         this.raffleService = raffleService;
+    }
+
+    @GetMapping("/{id}")
+    @Operation(
+        summary = "Get raffle by ID",
+        description = "Retrieves a specific raffle by its ID"
+    )
+    @ApiResponse(responseCode = "200", description = "Successfully retrieved the raffle")
+    @ApiResponse(responseCode = "404", description = "Raffle not found")
+    public ResponseEntity<?> getRaffleById(
+            @Parameter(description = "ID of the raffle to retrieve")
+            @PathVariable Long id) {
+
+        try {
+            Optional<Raffle> raffle = raffleService.getRaffleById(id);
+            return ResponseEntity.status(HttpStatus.CREATED).body(raffle);
+        } catch (ValidationException e) {
+            Map<String, String> response = new HashMap<>();
+            response.put("error", e.getMessage());
+            return ResponseEntity.status(HttpStatus.NOT_FOUND).body(response);
+        }
     }
 
     @PostMapping
@@ -399,6 +421,7 @@ import com.allianz.raffle.exception.ValidationException;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+import java.util.Optional;
 
 import java.time.LocalDateTime;
 import java.util.List;
@@ -412,6 +435,12 @@ public class RaffleService {
     @Autowired
     public RaffleService(RaffleRepository raffleRepository) {
         this.raffleRepository = raffleRepository;
+    }
+
+    @Transactional(readOnly = true)
+    public Optional<Raffle> getRaffleById(Long id) {
+        return raffleRepository.findById(id)
+                .map(this::updateRaffleStatus);
     }
 
     @Transactional
@@ -887,11 +916,24 @@ import { Component, OnInit } from '@angular/core';
 import { Router } from '@angular/router';
 import { RaffleService } from '../../services/raffle.service';
 import { Raffle } from '../../models/raffle.model';
+import { NxTableModule } from '@aposin/ng-aquila/table';
+import { CommonModule } from '@angular/common';
+import { NxIconModule } from '@aposin/ng-aquila/icon';
+import { NxSpinnerModule } from '@aposin/ng-aquila/spinner';
+import { NxMessageModule } from '@aposin/ng-aquila/message';
 
 @Component({
   selector: 'app-raffle-list',
   templateUrl: './raffle-list.component.html',
-  styleUrls: ['./raffle-list.component.scss']
+  styleUrls: ['./raffle-list.component.scss'],
+  imports: [
+    CommonModule,
+    NxTableModule,
+    NxIconModule,
+    NxSpinnerModule,
+    NxMessageModule
+  ]
+  , standalone: true
 })
 export class RaffleListComponent implements OnInit {
   raffles: Raffle[] = [];
@@ -930,18 +972,40 @@ export class RaffleListComponent implements OnInit {
 ## File: src/app/components/raffle-detail/raffle-detail.component.ts
 
 ```
-// File: /frontend/src/app/components/raffle-detail/raffle-detail.component.ts
-
 import { Component, OnInit } from '@angular/core';
+import { CommonModule } from '@angular/common';
 import { ActivatedRoute } from '@angular/router';
-import { FormBuilder, FormGroup, Validators } from '@angular/forms';
+import { FormBuilder, FormGroup, Validators, ReactiveFormsModule } from '@angular/forms';
 import { RaffleService } from '../../services/raffle.service';
 import { Raffle } from '../../models/raffle.model';
+import { NxIconModule } from '@aposin/ng-aquila/icon';
+import { NxSpinnerModule } from '@aposin/ng-aquila/spinner';
+import { NxMessageModule } from '@aposin/ng-aquila/message';
+import { NxCardModule } from '@aposin/ng-aquila/card';
+import { NxFormfieldModule } from '@aposin/ng-aquila/formfield';
+import { NxDropdownModule } from '@aposin/ng-aquila/dropdown';
+import { NxButtonModule } from '@aposin/ng-aquila/button';
+import { NxInputModule } from '@aposin/ng-aquila/input';
+import { NxTableModule } from '@aposin/ng-aquila/table';
 
 @Component({
   selector: 'app-raffle-detail',
   templateUrl: './raffle-detail.component.html',
-  styleUrls: ['./raffle-detail.component.scss']
+  styleUrls: ['./raffle-detail.component.scss'],
+  standalone: true,
+  imports: [
+    CommonModule,
+    ReactiveFormsModule,
+    NxIconModule,
+    NxSpinnerModule,
+    NxMessageModule,
+    NxCardModule,
+    NxFormfieldModule,
+    NxDropdownModule,
+    NxButtonModule,
+    NxInputModule,
+    NxTableModule
+  ]
 })
 export class RaffleDetailComponent implements OnInit {
   raffle: Raffle | null = null;
@@ -963,7 +1027,7 @@ export class RaffleDetailComponent implements OnInit {
       additionalChances: [0, [
         Validators.required,
         Validators.min(0),
-        Validators.max(100) // This will be updated when raffle is loaded
+        Validators.max(100)
       ]]
     });
   }
@@ -1000,7 +1064,6 @@ export class RaffleDetailComponent implements OnInit {
   submitAnswer(): void {
     if (this.answerForm.valid && this.raffle) {
       const answer = this.answerForm.get('selectedAnswer')?.value;
-      // TODO: Implement answer submission
       console.log('Submitting answer:', answer);
     }
   }
@@ -1008,7 +1071,6 @@ export class RaffleDetailComponent implements OnInit {
   purchaseChances(): void {
     if (this.chancesForm.valid && this.raffle) {
       const amount = this.chancesForm.get('additionalChances')?.value;
-      // TODO: Implement chance purchase
       console.log('Purchasing chances:', amount);
     }
   }
@@ -1133,18 +1195,52 @@ export class RaffleService {
 import { Injectable } from '@angular/core';
 import { HttpClient } from '@angular/common/http';
 import { BehaviorSubject, Observable } from 'rxjs';
+import { Router } from '@angular/router';
 import { environment } from '../../environments/environment';
+
+interface User {
+  id: number;
+  username: string;
+  token?: string;
+}
 
 @Injectable({
   providedIn: 'root'
 })
 export class AuthService {
   private isAuthenticatedSubject = new BehaviorSubject<boolean>(true);
+  private currentUserSubject = new BehaviorSubject<User | null>(null);
+  public currentUser$: Observable<User | null>;
 
-  constructor(private http: HttpClient) {}
+  constructor(
+    private http: HttpClient,
+    private router: Router
+  ) {
+    // Try to restore user from localStorage
+    const storedUser = localStorage.getItem('currentUser');
+    if (storedUser) {
+      this.currentUserSubject.next(JSON.parse(storedUser));
+      this.isAuthenticatedSubject.next(true);
+    }
+    this.currentUser$ = this.currentUserSubject.asObservable();
+  }
+
+  public get currentUserValue(): User | null {
+    return this.currentUserSubject.value;
+  }
 
   isAuthenticated(): Observable<boolean> {
     return this.isAuthenticatedSubject.asObservable();
+  }
+
+  logout() {
+    // Remove user from local storage
+    localStorage.removeItem('currentUser');
+    // Update subjects
+    this.currentUserSubject.next(null);
+    this.isAuthenticatedSubject.next(false);
+    // Navigate to login
+    this.router.navigate(['/login']);
   }
 }```
 
@@ -1271,10 +1367,8 @@ export class JwtInterceptor implements HttpInterceptor {
 ## File: src/app/interceptors/error.interceptor.ts
 
 ```
-// File: /frontend/src/app/interceptors/error.interceptor.ts
-
 import { Injectable } from '@angular/core';
-import { HttpRequest, HttpHandler, HttpEvent, HttpInterceptor } from '@angular/common/http';
+import { HttpRequest, HttpHandler, HttpEvent, HttpInterceptor, HttpErrorResponse } from '@angular/common/http';
 import { Observable, throwError } from 'rxjs';
 import { catchError } from 'rxjs/operators';
 import { AuthService } from '../services/auth.service';
@@ -1284,13 +1378,13 @@ export class ErrorInterceptor implements HttpInterceptor {
     constructor(private authService: AuthService) { }
 
     intercept(request: HttpRequest<any>, next: HttpHandler): Observable<HttpEvent<any>> {
-        return next.handle(request).pipe(catchError(err => {
+        return next.handle(request).pipe(catchError((err: HttpErrorResponse) => {
             if ([401, 403].includes(err.status) && this.authService.currentUserValue) {
                 // auto logout if 401 or 403 response returned from api
                 this.authService.logout();
             }
 
-            const error = err.error?.message || err.statusText;
+            const error = err.error?.message || err.statusText || 'An error occurred';
             return throwError(() => error);
         }));
     }
@@ -1303,17 +1397,27 @@ import { NgModule } from '@angular/core';
 import { BrowserModule } from '@angular/platform-browser';
 import { BrowserAnimationsModule } from '@angular/platform-browser/animations';
 import { HttpClientModule, HTTP_INTERCEPTORS } from '@angular/common/http';
+import { ReactiveFormsModule } from '@angular/forms';
 
 import { AppRoutingModule } from './app-routing.module';
 import { AppComponent } from './app.component';
-import { UserListComponent } from './components/user-list/user-list.component';
 import { JwtInterceptor } from './interceptors/jwt.interceptor';
+import { ErrorInterceptor } from './interceptors/error.interceptor';
 
 // Ng-Aquila Modules
 import { NxTableModule } from '@aposin/ng-aquila/table';
 import { NxIconModule } from '@aposin/ng-aquila/icon';
 import { NxSpinnerModule } from '@aposin/ng-aquila/spinner';
 import { NxMessageModule } from '@aposin/ng-aquila/message';
+import { NxCardModule } from '@aposin/ng-aquila/card';
+import { NxButtonModule } from '@aposin/ng-aquila/button';
+import { NxFormfieldModule } from '@aposin/ng-aquila/formfield';
+import { NxInputModule } from '@aposin/ng-aquila/input';
+import { NxDropdownModule } from '@aposin/ng-aquila/dropdown';
+
+// Components
+import { RaffleListComponent } from './components/raffle-list/raffle-list.component';
+import { UserListComponent } from './components/user-list/user-list.component';
 
 @NgModule({
   declarations: [
@@ -1324,14 +1428,23 @@ import { NxMessageModule } from '@aposin/ng-aquila/message';
     BrowserAnimationsModule,
     HttpClientModule,
     AppRoutingModule,
+    ReactiveFormsModule,
     UserListComponent,
+    RaffleListComponent,
+    // Ng-Aquila Modules
     NxTableModule,
     NxIconModule,
     NxSpinnerModule,
-    NxMessageModule
+    NxMessageModule,
+    NxCardModule,
+    NxButtonModule,
+    NxFormfieldModule,
+    NxInputModule,
+    NxDropdownModule
   ],
   providers: [
-    { provide: HTTP_INTERCEPTORS, useClass: JwtInterceptor, multi: true }
+    { provide: HTTP_INTERCEPTORS, useClass: JwtInterceptor, multi: true },
+    { provide: HTTP_INTERCEPTORS, useClass: ErrorInterceptor, multi: true }
   ],
   bootstrap: [AppComponent]
 })
@@ -1378,9 +1491,13 @@ export class AppComponent {
 import { NgModule } from '@angular/core';
 import { RouterModule, Routes } from '@angular/router';
 import { UserListComponent } from './components/user-list/user-list.component';
+import { RaffleListComponent } from './components/raffle-list/raffle-list.component';
+import { RaffleDetailComponent } from './components/raffle-detail/raffle-detail.component';
 
 const routes: Routes = [
   { path: 'users', component: UserListComponent },
+  { path: 'raffles', component: RaffleListComponent },
+  { path: 'raffles/:id', component: RaffleDetailComponent },
   { path: '', redirectTo: '/users', pathMatch: 'full' }
 ];
 

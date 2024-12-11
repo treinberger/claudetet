@@ -22,8 +22,8 @@ public class Raffle {
     private LocalDateTime previewDate;
     private String question;
 
-    @ElementCollection
-    private List<String> answerOptions = new ArrayList<>();
+    @OneToMany(mappedBy = "raffle", cascade = CascadeType.ALL, orphanRemoval = true)
+    private List<AnswerOption> answerOptions = new ArrayList<>();
 
     @OneToMany(mappedBy = "raffle", cascade = CascadeType.ALL, orphanRemoval = true)
     private List<PrizeTier> prizeTiers = new ArrayList<>();
@@ -39,7 +39,17 @@ public class Raffle {
         this.apointsConfig = new ApointsConfig();
     }
 
-    // Helper method to manage bidirectional relationship
+    // Helper methods for managing bidirectional relationships
+    public void addAnswerOption(AnswerOption answerOption) {
+        answerOptions.add(answerOption);
+        answerOption.setRaffle(this);
+    }
+
+    public void removeAnswerOption(AnswerOption answerOption) {
+        answerOptions.remove(answerOption);
+        answerOption.setRaffle(null);
+    }
+
     public void addPrizeTier(PrizeTier prizeTier) {
         prizeTiers.add(prizeTier);
         prizeTier.setRaffle(this);
@@ -123,12 +133,17 @@ public class Raffle {
         this.question = question;
     }
 
-    public List<String> getAnswerOptions() {
+    public List<AnswerOption> getAnswerOptions() {
         return answerOptions;
     }
 
-    public void setAnswerOptions(List<String> answerOptions) {
-        this.answerOptions = answerOptions;
+    public void setAnswerOptions(List<AnswerOption> answerOptions) {
+        // Clear existing options
+        this.answerOptions.clear();
+        if (answerOptions != null) {
+            // Add each option using the helper method
+            answerOptions.forEach(this::addAnswerOption);
+        }
     }
 
     public List<PrizeTier> getPrizeTiers() {
@@ -139,7 +154,7 @@ public class Raffle {
         // Clear existing prize tiers
         this.prizeTiers.clear();
         if (prizeTiers != null) {
-            // Add each prize tier using the helper method to maintain the relationship
+            // Add each prize tier using the helper method
             prizeTiers.forEach(this::addPrizeTier);
         }
     }

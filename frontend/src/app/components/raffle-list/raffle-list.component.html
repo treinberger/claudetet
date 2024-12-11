@@ -2,7 +2,13 @@
   <div class="nx-grid__item nx-grid__item--width-12">
     <div class="nx-card">
       <div class="nx-card__header">
-        <h2 nxHeadline="subsection-large">Available Raffles</h2>
+        <div class="header-with-button">
+          <h2 nxHeadline="subsection-large">Available Raffles</h2>
+          <button nxButton="primary" (click)="createNewRaffle()">
+            <nx-icon name="plus"></nx-icon>
+            Create New Raffle
+          </button>
+        </div>
       </div>
       <div class="nx-card__content">
         <div *ngIf="loading" class="spinner-container">
@@ -32,7 +38,7 @@
     </div>
 
     <div *ngIf="error" class="error-message">
-      <nx-message type="error">{{error}}</nx-message>
+      <nx-message context="error">{{error}}</nx-message>
     </div>
   </div>
 </div>

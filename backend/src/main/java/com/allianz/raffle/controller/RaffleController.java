@@ -15,7 +15,6 @@ import org.springframework.http.HttpStatus;
 import java.util.List;
 import java.util.HashMap;
 import java.util.Map;
-import java.util.Optional;
 
 @RestController
 @RequestMapping("/api/raffles")
@@ -40,14 +39,9 @@ public class RaffleController {
             @Parameter(description = "ID of the raffle to retrieve")
             @PathVariable Long id) {
 
-        try {
-            Optional<Raffle> raffle = raffleService.getRaffleById(id);
-            return ResponseEntity.status(HttpStatus.CREATED).body(raffle);
-        } catch (ValidationException e) {
-            Map<String, String> response = new HashMap<>();
-            response.put("error", e.getMessage());
-            return ResponseEntity.status(HttpStatus.NOT_FOUND).body(response);
-        }
+        return raffleService.getRaffleById(id)
+            .map(ResponseEntity::ok)
+            .orElse(ResponseEntity.notFound().build());
     }
 
     @PostMapping
@@ -62,9 +56,9 @@ public class RaffleController {
             Raffle createdRaffle = raffleService.createRaffle(raffle);
             return ResponseEntity.status(HttpStatus.CREATED).body(createdRaffle);
         } catch (ValidationException e) {
-            Map<String, String> response = new HashMap<>();
-            response.put("error", e.getMessage());
-            return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(response);
+            Map<String, String> error = new HashMap<>();
+            error.put("error", e.getMessage());
+            return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(error);
         }
     }
 

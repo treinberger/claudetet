@@ -1,5 +1,3 @@
-// File: /frontend/src/app/models/raffle.model.ts
-
 export interface Raffle {
   id: number;
   name: string;
@@ -10,10 +8,15 @@ export interface Raffle {
   endDate: Date;
   previewDate: Date;
   question: string;
-  answerOptions: string[];
+  answerOptions: AnswerOption[];
   prizeTiers: PrizeTier[];
   apointsConfig?: ApointsConfig;
   status: RaffleStatus;
+}
+
+export interface AnswerOption {
+  text: string;
+  isCorrect: boolean;
 }
 
 export interface PrizeTier {

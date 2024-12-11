@@ -1,6 +1,7 @@
 package com.allianz.raffle.service;
 
 import com.allianz.raffle.model.Raffle;
+import com.allianz.raffle.model.AnswerOption;
 import com.allianz.raffle.model.PrizeTier;
 import com.allianz.raffle.model.enums.RaffleStatus;
 import com.allianz.raffle.repository.RaffleRepository;
@@ -16,6 +17,7 @@ import java.util.Arrays;
 import java.util.List;
 import java.util.ArrayList;
 
+import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.*;
 import static org.junit.jupiter.api.Assertions.*;
 
@@ -85,7 +87,7 @@ class RaffleServiceTest {
         // Arrange
         LocalDateTime now = LocalDateTime.now();
         Raffle raffle = createValidRaffle(now);
-        raffle.setAnswerOptions(Arrays.asList("Option 1"));
+        raffle.setAnswerOptions(List.of(AnswerOption.of("Option 1", false)));
 
         // Act & Assert
         ValidationException exception = assertThrows(
@@ -188,7 +190,7 @@ class RaffleServiceTest {
         raffle.setStartDate(now.plusDays(2));
         raffle.setEndDate(now.plusDays(3));
         raffle.setQuestion("Test Question?");
-        raffle.setAnswerOptions(Arrays.asList("Option 1", "Option 2"));
+        raffle.setAnswerOptions(List.of(AnswerOption.of("Option 1", false), AnswerOption.of("Option 2", true), AnswerOption.of("Option 3", false)));
         
         PrizeTier prizeTier = new PrizeTier();
         prizeTier.setTier(1);

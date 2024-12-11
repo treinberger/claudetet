@@ -1,5 +1,3 @@
-// File: /frontend/src/app/components/raffle-list/raffle-list.component.ts
-
 import { Component, OnInit } from '@angular/core';
 import { Router } from '@angular/router';
 import { RaffleService } from '../../services/raffle.service';
@@ -9,6 +7,7 @@ import { CommonModule } from '@angular/common';
 import { NxIconModule } from '@aposin/ng-aquila/icon';
 import { NxSpinnerModule } from '@aposin/ng-aquila/spinner';
 import { NxMessageModule } from '@aposin/ng-aquila/message';
+import { NxButtonModule } from '@aposin/ng-aquila/button';
 
 @Component({
   selector: 'app-raffle-list',
@@ -19,9 +18,10 @@ import { NxMessageModule } from '@aposin/ng-aquila/message';
     NxTableModule,
     NxIconModule,
     NxSpinnerModule,
-    NxMessageModule
-  ]
-  , standalone: true
+    NxMessageModule,
+    NxButtonModule
+  ],
+  standalone: true
 })
 export class RaffleListComponent implements OnInit {
   raffles: Raffle[] = [];
@@ -54,5 +54,9 @@ export class RaffleListComponent implements OnInit {
 
   viewRaffleDetails(id: number): void {
     this.router.navigate(['/raffles', id]);
+  }
+
+  createNewRaffle(): void {
+    this.router.navigate(['/raffles/create']);
   }
 }
